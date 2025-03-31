@@ -1,20 +1,27 @@
 # Use the official Python image as a base
-FROM python:3.9-slim
+FROM python:3.12-slim-bookworm
 
-# Set the working directory in the container
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Download and install uv
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Set up the application directory
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Copy application files
+COPY app/ ./app/
 
-# Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install FastAPI and Uvicorn
+RUN pip install fastapi uvicorn
 
-# Copy the application code into the container
-COPY app ./app
-
-# Expose the port the app runs on
+# Expose port
 EXPOSE 8000
 
-# Command to run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Run the application
+CMD ["/root/.local/bin/uv", "run", "app/main.py"]
