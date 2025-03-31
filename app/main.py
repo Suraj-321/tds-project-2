@@ -19,6 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def read_root():
+    return {"message": "Welcome to the IITM Assignment API"}
 
 @app.post("/api/")
 async def process_question(
@@ -36,7 +39,6 @@ async def process_question(
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # New endpoint for testing specific functions
 @app.post("/debug/{function_name}")
@@ -92,4 +94,3 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
-
